@@ -1,24 +1,35 @@
 package com.transtu.reclamationservice.entities;
 
 import com.transtu.reclamationservice.models.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Transient;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
-@Entity @Getter
+@Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
+@Table(name="reclamation")
 public class Reclamation {
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private LocalDate createAt;
-    private String description;
+    private String state;
+    private String reportingSourceEtat;
+    private String reportingSourceTel;
+    private String reportingSourceNomPrenom;
+    private String lieu;
+    public LocalDate date=LocalDate.now();
+    private String typeAccidentIncident;
+    private String typeDegat;
+    private String notes;
+    @OneToMany(mappedBy = "reclamation", cascade = CascadeType.ALL)
+    private List<PhotoReclamation> photos;
     @Transient
     private User user;
     private Long userId;

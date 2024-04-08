@@ -21,7 +21,7 @@ public class ReclamationServiceApplication {
 	}
 
 
-	@Bean
+	/*@Bean
 	CommandLineRunner commandLineRunner(ReclamationRepository reclamationRepository, UserRestClient userRestClient){
 		return args -> {
 			userRestClient.allUsers().forEach(u->{
@@ -43,5 +43,5 @@ public class ReclamationServiceApplication {
 
 
 		};
-	}
+	}*/
 }
