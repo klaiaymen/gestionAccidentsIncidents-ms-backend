@@ -30,7 +30,7 @@ public class Reclamation {
     private String notes;
     @OneToMany(mappedBy = "reclamation", cascade = CascadeType.ALL)
     private List<PhotoReclamation> photos;
-    @Transient
+    /*@Transient
     private User user;
-    private Long userId;
+    private Long userId;*/
 }

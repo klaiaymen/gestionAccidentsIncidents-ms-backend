@@ -23,7 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 public class ReclamationRestController {
     private UserRestClient userRestClient;
     private final ReclamationService reclamationService;
@@ -33,22 +33,22 @@ public class ReclamationRestController {
     private final ReportReclamationService reportReclamationService;
 
 
-    @GetMapping("/reclamations")
+    /*@GetMapping("/reclamations")
     public List<Reclamation> reclamationList(){
         List<Reclamation> reclamationList = reclamationRepository.findAll();
         reclamationList.forEach(r->{
             r.setUser(userRestClient.findUserById(r.getUserId()));
         });
         return reclamationList;
-    }
+    }*/
 
-    @GetMapping("/reclamations/{id}")
+    /*@GetMapping("/reclamations/{id}")
     public Reclamation reclamationById(@PathVariable Long id){
         Reclamation reclamation= reclamationRepository.findById(id).get();
         User user=userRestClient.findUserById(reclamation.getUserId());
         reclamation.setUser(user);
         return reclamation;
-    }
+    }*/
 
     //copier coller
     @PostMapping("/reclamation")
