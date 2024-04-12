@@ -103,6 +103,14 @@ services:
     depends_on:
       transtu-config-service:
         condition: service_healthy
+
+  transtu-front-angular:
+    build: C:\Users\lenovo\Desktop\coreui-free-angular-admin-template-main
+    container_name: angular-frontend-transtu
+    ports:
+      - '80:80'
+    expose:
+      - '80'
 volumes:
   db_data:
 
