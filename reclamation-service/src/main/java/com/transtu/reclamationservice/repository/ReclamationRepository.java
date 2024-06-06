@@ -34,4 +34,12 @@ public interface ReclamationRepository extends JpaRepository<Reclamation,Long> {
             "i.typeAccidentIncident, ' ', i.typeDegat) LIKE %:query%"
     )
     List<Reclamation> searchReclamationsWithoutDateRange(String query, String typeAccidentIncident, String typeDegat);
+
+    @Query("SELECT r.district, COUNT(r) FROM Reclamation r GROUP BY r.district")
+    List<Object[]> getReclamationCountByDistrict();
+
+    @Query("SELECT r.codeMt, COUNT(r) FROM Reclamation r GROUP BY r.codeMt")
+    List<Object[]> getReclamationCountByMt();
+    @Query("SELECT r FROM Reclamation r WHERE r.userId = :userId")
+    List<Reclamation> findByAppUserUserId(Long userId);
 }

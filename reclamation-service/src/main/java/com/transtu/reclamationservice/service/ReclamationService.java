@@ -1,8 +1,10 @@
 package com.transtu.reclamationservice.service;
 
 
+import com.transtu.reclamationservice.clients.UserRestClient;
 import com.transtu.reclamationservice.entities.PhotoReclamation;
 import com.transtu.reclamationservice.entities.Reclamation;
+import com.transtu.reclamationservice.models.AppUser;
 import com.transtu.reclamationservice.repository.PhotoReclamationRepository;
 import com.transtu.reclamationservice.repository.ReclamationRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +27,7 @@ public class ReclamationService {
     private final PhotoReclamationRepository photoReclamationRepository;
     private final EmailService emailService;
     private final VonageSmsService vonageSmsService;
+    private final UserRestClient userRestClient;
 
     public Optional<Reclamation> findById(Long id) {
         return reclamationRepository.findById(id);
@@ -213,5 +214,40 @@ public class ReclamationService {
 
         // Sauvegarde de la réclamation mise à jour
         return reclamationRepository.save(savedReclamation);
+    }
+
+    public AppUser getUserById(Long userId) {
+        return userRestClient.findUserById(userId);
+    }
+
+    public AppUser getUserByUsername(String username) {
+        return userRestClient.getUserByUsername(username);
+    }
+
+    public Map<String, Long> getReclamationCountByDistrict() {
+        List<Object[]> result = reclamationRepository.getReclamationCountByDistrict();
+        Map<String, Long> reclamationCountByDistrict = new HashMap<>();
+        for (Object[] row : result) {
+            String districtName = (String) row[0];
+            Long reclamationCount = (Long) row[1];
+            reclamationCountByDistrict.put(districtName, reclamationCount);
+        }
+        return reclamationCountByDistrict;
+    }
+
+    public Map<String, Long> getReclamationCountByMt() {
+        List<Object[]> result = reclamationRepository.getReclamationCountByMt();
+        Map<String, Long> reclamationCountByMt = new HashMap<>();
+        for (Object[] row : result) {
+            String mtName = (String) row[0];
+            Long reclamationCount = (Long) row[1];
+            reclamationCountByMt.put(mtName, reclamationCount);
+        }
+        return reclamationCountByMt;
+    }
+
+    public List<Reclamation> getReclamationByUser(Long id){
+        //AppUser appUser=userRestClient.getUserByUsername(username);
+        return reclamationRepository.findByAppUserUserId(id);
     }
 }

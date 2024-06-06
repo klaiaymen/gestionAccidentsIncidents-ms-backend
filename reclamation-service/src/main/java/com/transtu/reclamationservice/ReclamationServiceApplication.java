@@ -17,6 +17,7 @@ import java.util.UUID;
 public class ReclamationServiceApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(ReclamationServiceApplication.class, args);
 	}
 

@@ -3,29 +3,30 @@ package com.transtu.reclamationservice.web;
 import com.transtu.reclamationservice.clients.UserRestClient;
 import com.transtu.reclamationservice.entities.PhotoReclamation;
 import com.transtu.reclamationservice.entities.Reclamation;
-import com.transtu.reclamationservice.models.User;
+import com.transtu.reclamationservice.models.AppUser;
 import com.transtu.reclamationservice.repository.PhotoReclamationRepository;
 import com.transtu.reclamationservice.repository.ReclamationRepository;
 import com.transtu.reclamationservice.service.EmailService;
 import com.transtu.reclamationservice.service.ReclamationService;
 import com.transtu.reclamationservice.service.ReportReclamationService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-//@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "http://localhost:4200")
 public class ReclamationRestController {
-    private UserRestClient userRestClient;
+    private final UserRestClient userRestClient;
     private final ReclamationService reclamationService;
     private final ReclamationRepository reclamationRepository;
     private final EmailService emailService;
@@ -49,26 +50,50 @@ public class ReclamationRestController {
         reclamation.setUser(user);
         return reclamation;
     }*/
+    /*@GetMapping("/reclamation")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Reclamation> getAllReclamations() {
+        List<Reclamation> reclamations = reclamationService.getAllReclamations();
+        reclamations.forEach(reclamation -> {
+            AppUser user = userRestClient.findUserById(reclamation.getUserId());
+            reclamation.setAppUser(user);
+        });
+        return reclamations;
+    }*/
 
     //copier coller
     @PostMapping("/reclamation")
+    @PreAuthorize("hasAuthority('SCOPE_USER')and hasAuthority('SCOPE_RECLAMATION_ADD')")
     @ResponseStatus(HttpStatus.CREATED)
     public Reclamation createReclamation(@RequestBody Reclamation reclamation){
         return reclamationService.createReclamation(reclamation);
     }
 
     @GetMapping("/reclamation")
+    @PreAuthorize("hasAuthority('SCOPE_USER')")
     @ResponseStatus(HttpStatus.OK)
     public List<Reclamation> getAllReclamations() {
         return reclamationService.getAllReclamations();
     }
-    @GetMapping(value="/reclamation/{id}")
+    /*@GetMapping(value="/reclamation/{id}")
     public ResponseEntity<Reclamation> getReclamationById(@PathVariable("id") Long id) {
         return reclamationRepository.findById(id)
                 .map(reclamation -> ResponseEntity.ok().body(reclamation))
                 .orElse(ResponseEntity.notFound().build());
+    }*/
+    @GetMapping(value="/reclamation/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_USER')")
+    public ResponseEntity getReclamationById(@PathVariable Long id){
+        Reclamation reclamation = reclamationRepository.findById(id).orElse(null);
+        if(reclamation==null) {
+            return ResponseEntity.internalServerError().body(Map.of("errorMessage","reclamation not found"));
+        }
+        AppUser user=userRestClient.findUserById(reclamation.getUserId());
+        reclamation.setAppUser(user);
+        return ResponseEntity.ok(reclamation);
     }
     @PutMapping("/reclamation/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_USER')and hasAuthority('SCOPE_RECLAMATION_UPDATE')")
     public ResponseEntity<Reclamation> updateReclamation(@PathVariable Long id, @RequestBody Reclamation reclamation) {
         Reclamation updatedReclamation = reclamationService.editReclamation(id, reclamation);
         if (updatedReclamation != null) {
@@ -78,6 +103,7 @@ public class ReclamationRestController {
         }
     }
     @DeleteMapping(value="/reclamation/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_USER')and hasAuthority('SCOPE_RECLAMATION_DELETE')")
     public ResponseEntity<?> deleteReclamation(@PathVariable("id") Long id) {
         return reclamationRepository.findById(id)
                 .map(reclamtion -> {
@@ -95,6 +121,7 @@ public class ReclamationRestController {
     }
 
     @PostMapping("/reclamation/userValidate/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_USER')")
     public ResponseEntity<Reclamation> validateByUser(@PathVariable Long id) {
         Reclamation validatedReclamation = reclamationService.validateByUser(id);
         if (validatedReclamation != null) {
@@ -105,6 +132,7 @@ public class ReclamationRestController {
     }
 
     @PostMapping("/reclamation/dispatcherValidate/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_USER')")
     public ResponseEntity<Reclamation> validateByDispatcher(@PathVariable Long id) {
         Reclamation validatedReclamation = reclamationService.validateByDispatcher(id);
         if (validatedReclamation != null) {
@@ -116,6 +144,7 @@ public class ReclamationRestController {
 
 
     @PostMapping("/reclamation-with-photos")
+    @PreAuthorize("hasAuthority('SCOPE_USER')")
     public ResponseEntity<Reclamation> saveReclamationWithPhotos(@RequestPart("reclamation") Reclamation reclamation,
                                                                  @RequestPart("photos") List<MultipartFile> photos) throws IOException {
         Reclamation savedReclamation = reclamationService.saveReclamationWithPhotos(reclamation, photos);
@@ -124,6 +153,7 @@ public class ReclamationRestController {
 
 
     @PostMapping("/photo-reclamation/{reclamationId}")
+    @PreAuthorize("hasAuthority('SCOPE_USER')")
     public ResponseEntity<PhotoReclamation> savePhotoReclamation(@PathVariable Long reclamationId, @RequestBody String photoUrl) {
         // Récupérer la réclamation associée
         Reclamation reclamation = reclamationRepository.findById(reclamationId).orElse(null);
@@ -144,6 +174,7 @@ public class ReclamationRestController {
 
 
     @GetMapping("/reclamation-report")
+    @PreAuthorize("hasAuthority('SCOPE_USER')and hasAuthority('SCOPE_GENERATE_REPORTS')")
     public ResponseEntity<String> generateReport(@RequestParam String format, @RequestParam String query, @RequestParam String fromDate, @RequestParam String toDate,@RequestParam String typeAccidentIncident,@RequestParam String typeDegat) {
         try {
             // Convertir les chaînes de caractères en objets LocalDate
@@ -160,6 +191,7 @@ public class ReclamationRestController {
     }
 
     @GetMapping("/reclamation-report-without-date")
+    @PreAuthorize("hasAuthority('SCOPE_USER')")
     public ResponseEntity<String> generateReportWithoutDate(@RequestParam String format, @RequestParam String query,@RequestParam String typeAccidentIncident,@RequestParam String typeDegat) {
         try {
 
@@ -175,6 +207,7 @@ public class ReclamationRestController {
 
 
     @GetMapping("/reclamation/searchGlobal")
+    @PreAuthorize("hasAuthority('SCOPE_USER')")
     public ResponseEntity<List<Reclamation>> searchReclamationsByDateRangeAndTypes(
             @RequestParam String query,
             @RequestParam String fromDate,
@@ -191,6 +224,7 @@ public class ReclamationRestController {
 
 
     @GetMapping("/reclamation/searchReclamationWithoutDateRange")
+    @PreAuthorize("hasAuthority('SCOPE_USER')")
     public ResponseEntity<List<Reclamation>> searchReclamationsWithoutDateRange(
             @RequestParam String query,
             @RequestParam String typeAccidentIncident,
@@ -198,5 +232,25 @@ public class ReclamationRestController {
         List<Reclamation> reclamations = reclamationRepository.searchReclamationsWithoutDateRange(
                 query, typeAccidentIncident, typeDegat);
         return new ResponseEntity<>(reclamations, HttpStatus.OK);
+    }
+
+    @GetMapping("/districts/reclamation-count")
+    @PreAuthorize("hasAuthority('SCOPE_USER')")
+    public ResponseEntity<Map<String, Long>> getReclamationCountByDistrict() {
+        Map<String, Long> reclamationCountByDistrict = reclamationService.getReclamationCountByDistrict();
+        return ResponseEntity.ok(reclamationCountByDistrict);
+    }
+
+    @GetMapping("/mts/reclamation-count")
+    @PreAuthorize("hasAuthority('SCOPE_USER')")
+    public ResponseEntity<Map<String, Long>> getReclamationCountByMt() {
+        Map<String, Long> reclamationCountByMt = reclamationService.getReclamationCountByMt();
+        return ResponseEntity.ok(reclamationCountByMt);
+    }
+
+    @GetMapping("/reclamation/users/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_USER')")
+    public List<Reclamation> getReclamationsByUsername(@PathVariable Long id) {
+        return reclamationService.getReclamationByUser(id);
     }
 }

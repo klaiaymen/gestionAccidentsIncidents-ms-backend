@@ -35,7 +35,7 @@ services:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: transtu
+      MYSQL_DATABASE: transtuv2
     volumes:
       - db_data:/var/lib/mysql
 
@@ -66,7 +66,7 @@ services:
     environment:
       - DISCOVERY_SERVICE_URL=http://transtu-discovery-service:8761/eureka
       - CONFIG_SERVICE=http://transtu-config-service:9999
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/transtu
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/transtuv2
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
     depends_on:
@@ -83,11 +83,11 @@ services:
     environment:
       - DISCOVERY_SERVICE_URL=http://transtu-discovery-service:8761/eureka
       - CONFIG_SERVICE=http://transtu-config-service:9999
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/transtu
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/transtuv2
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
     depends_on:
-      transtu-gestionaccidentsincidents-service:
+      transtu-config-service:
         condition: service_healthy
 
   transtu-gateway-service:

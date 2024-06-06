@@ -1,6 +1,6 @@
 package com.transtu.reclamationservice.clients;
 
-import com.transtu.reclamationservice.models.User;
+import com.transtu.reclamationservice.models.AppUser;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,21 +10,29 @@ import java.util.List;
 
 @FeignClient(name = "GESTIONACCIDENTSINCIDENTS")
 public interface UserRestClient {
-    @GetMapping("/users/{id}")
+    @GetMapping(path="/users/{id}")
     @CircuitBreaker(name = "GESTIONACCIDENTSINCIDENTS", fallbackMethod = "getDefaultUser")
-    User findUserById(@PathVariable Long id);
-    @GetMapping("/users")
+    AppUser findUserById(@PathVariable Long id);
+    @GetMapping(path="/users")
     @CircuitBreaker(name = "GESTIONACCIDENTSINCIDENTS", fallbackMethod = "getAllUsers")
-    List<User> allUsers();
+    List<AppUser> allUsers();
 
-    default User getDefaultUser(Long id, Exception exception){
-        User user=new User();
-        user.setId(id);
-        user.setName("Not Vailable");
+    default AppUser getDefaultUser(Long id, Exception exception){
+        AppUser user=new AppUser();
+        user.setUserId(id);
+        user.setUsername("Not Vailable");
         user.setEmail("Not Vailable");
+        user.setTel("Not Vailable");
+        user.setPassword("Not Vailable");
         return user;
     }
-    default List<User> getAllUsers(Exception exception){
+    default List<AppUser> getAllUsers(Exception exception){
         return List.of();
     }
+    /*@GetMapping("/users/{userId}")
+    AppUser findUserById(@PathVariable("userId") Long userId);*/
+
+    @GetMapping("/users/username/{username}")
+    AppUser getUserByUsername(@PathVariable String username);
 }
+

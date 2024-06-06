@@ -26,8 +26,10 @@ public class ReportReclamationService {
         String path = "C:\\Users\\lenovo\\Desktop\\pfe";
         List<Reclamation> reclamations = repository.searchReclamationsByDateRangeAndTypes(query,fromDate,toDate,typeAccidentIncident,typeDegat);
         //load file and compile it
-        File file = ResourceUtils.getFile("classpath:reclamation.jrxml");
-        JasperReport jasperReport = JasperCompileManager.compileReport(file.getAbsolutePath());
+        //File file = ResourceUtils.getFile("classpath:reclamation.jrxml");
+        InputStream inputStream = getClass().getResourceAsStream("/reclamation.jrxml");
+        //JasperReport jasperReport = JasperCompileManager.compileReport(file.getAbsolutePath());
+        JasperReport jasperReport = JasperCompileManager.compileReport(inputStream);
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(reclamations);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("createdBy", "Responsable TRANSTU");
@@ -68,7 +70,7 @@ public class ReportReclamationService {
         return "report generated in path : " + path;
     }*/
     public String exportReportWithoutDate(String reportFormat, String query, String typeAccidentIncident,String typeDegat) throws FileNotFoundException, JRException {
-        String path = "C:\\Users\\lenovo\\Desktop\\pfe";
+        String path = "./pfe";
         List<Reclamation> reclamations = repository.searchReclamationsWithoutDateRange(query,typeAccidentIncident,typeDegat);
 
         // Charger le fichier jrxml comme un InputStream

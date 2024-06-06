@@ -1,6 +1,7 @@
 package com.transtu.reclamationservice.entities;
 
-import com.transtu.reclamationservice.models.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.transtu.reclamationservice.models.AppUser;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,9 +17,9 @@ import java.util.List;
 @Entity
 @Table(name="reclamation")
 public class Reclamation {
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private LocalDate createAt;
     private String state;
     private String reportingSourceEtat;
     private String reportingSourceTel;
@@ -28,9 +29,14 @@ public class Reclamation {
     private String typeAccidentIncident;
     private String typeDegat;
     private String notes;
+    private String district;
+    private String codeMt;
     @OneToMany(mappedBy = "reclamation", cascade = CascadeType.ALL)
     private List<PhotoReclamation> photos;
-    /*@Transient
-    private User user;
-    private Long userId;*/
+
+    @Transient
+    private AppUser appUser;
+
+    @JsonProperty("userId")
+    private Long userId;
 }
